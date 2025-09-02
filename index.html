@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Quran Learning</title>
+<style>
+  /* Import Poppins for English text and Scheherazade New for Arabic */
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Scheherazade+New:wght@400;700&display=swap');
+
+  body { 
+    font-family: Arial, sans-serif; /* Keep a generic sans-serif for the body to avoid changing button fonts */
+    margin: 20px; 
+    background-color: #f7f7f7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  /* Apply Poppins font to the main English headings */
+  h1, h2 { 
+    font-family: 'Poppins', sans-serif;
+    text-align: center; 
+    color: #4a4a4a;
+  }
+
+  /* Overall Progress Bar Styling */
+  #overallProgressBar {
+      width: 100%;
+      height: 30px;
+      background-color: #e0e0e0;
+      border-radius: 15px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #333;
+      border: 1px solid #ccc;
+      position: relative; 
+  }
+  #overallProgressFill {
+      height: 100%;
+      background-color: #3498db;
+      transition: width 0.3s ease-in-out;
+  }
+  #overallProgressText {
+      position: absolute;
+      color: #333;
+      z-index: 1;
+  }
+
+  /* Common button style for all buttons - font remains default sans-serif */
+  .button-style {
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      text-align: center;
+      text-decoration: none;
+      color: #333;
+      display: inline-block;
+      margin: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: background-color 0.2s;
+  }
+  .button-style:hover {
+      background-color: #d0d0d0;
+  }
+
+  /* Style for completed surah buttons */
+  .sura-complete {
+      background-color: #3498db;
+      color: #ffffff;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  }
+
+  .main-content-wrapper {
+      width: fit-content;
+      max-width: 800px;
+      margin: 0 auto;
+  }
+
+  #suraGrid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 5px;
+      margin-top: 20px;
+      width: 100%;
+  }
+  #suraGrid .button-style {
+      width: 100%;
+      padding: 15px 10px;
+      font-size: 18px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  @media (max-width: 500px) {
+    #suraGrid {
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+    }
+    #suraGrid .button-style {
+      font-size: 16px;
+      height: 40px;
+    }
+  }
+
+  #wordListPage {
+      display: none;
+      position: relative; 
+      width: fit-content;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      box-sizing: border-box;
+      min-height: 85vh;
+  }
+
+  #homeButton {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+  }
+  
+  #suraHeading {
+      /* This heading will automatically get the Poppins font from the h2 selector */
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 2.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+  }
+
+  #wordList {
+      height: calc(100% - 150px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(5, 1fr);
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+  }
+
+  /* Arabic words keep their specific Scheherazade font */
+  .word {
+      font-family: 'Scheherazade New', serif;
+      text-align: center;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      background-color: #e9e9e9;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  .word:hover {
+      background-color: #d0d0d0;
+      box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+  }
+
+  .word.checked {
+      background-color: #3498db; 
+      color: #ffffff; 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  }
+
+  #paginationButtons {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+  }
+</style>
+</head>
+<body>
+<h1>My Quran Learning</h1>
+
+<div class="main-content-wrapper">
+    <div id="overallProgressBar">
+        <div id="overallProgressFill"></div>
+        <span id="overallProgressText">Loading...</span>
+    </div>
+
+    <div id="suraGrid">
+      <button onclick="openSura('108')" class="button-style">108</button>
+      <button onclick="openSura('110')" class="button-style">110</button>
+      <button onclick="openSura('103')" class="button-style">103</button>
+      <button onclick="openSura('106')" class="button-style">106</button>
+      <button onclick="openSura('112')" class="button-style">112</button>
+      <button onclick="openSura('105')" class="button-style">105</button>
+      <button onclick="openSura('109')" class="button-style">109</button>
+      <button onclick="openSura('97')" class="button-style">97</button>
+      <button onclick="openSura('94')" class="button-style">94</button>
+      <button onclick="openSura('111')" class="button-style">111</button>
+      <button onclick="openSura('113')" class="button-style">113</button>
+      <button onclick="openSura('114')" class="button-style">114</button>
+      <button onclick="openSura('99')" class="button-style">99</button>
+      <button onclick="openSura('100')" class="button-style">100</button>
+      <button onclick="openSura('89')" class="button-style">89</button>
+      <button onclick="openSura('101')" class="button-style">101</button>
+      <button onclick="openSura('84')" class="button-style">84</button>
+      <button onclick="openSura('82')" class="button-style">82</button>
+      <button onclick="openSura('104')" class="button-style">104</button>
+      <button onclick="openSura('87')" class="button-style">87</button>
+      <button onclick="openSura('102')" class="button-style">102</button>
+      <button onclick="openSura('90')" class="button-style">90</button>
+      <button onclick="openSura('93')" class="button-style">93</button>
+      <button onclick="openSura('92')" class="button-style">92</button>
+      <button onclick="openSura('96')" class="button-style">96</button>
+      <button onclick="openSura('80')" class="button-style">80</button>
+      <button onclick="openSura('98')" class="button-style">98</button>
+      <button onclick="openSura('81')" class="button-style">81</button>
+      <button onclick="openSura('85')" class="button-style">85</button>
+      <button onclick="openSura('86')" class="button-style">86</button>
+      <button onclick="openSura('91')" class="button-style">91</button>
+      <button onclick="openSura('83')" class="button-style">83</button>
+      <button onclick="openSura('77')" class="button-style">77</button>
+      <button onclick="openSura('79')" class="button-style">79</button>
+      <button onclick="openSura('75')" class="button-style">75</button>
+      <button onclick="openSura('88')" class="button-style">88</button>
+      <button onclick="openSura('78')" class="button-style">78</button>
+      <button onclick="openSura('76')" class="button-style">76</button>
+      <button onclick="openSura('74')" class="button-style">74</button>
+      <button onclick="openSura('68')" class="button-style">68</button>
+      <button onclick="openSura('73')" class="button-style">73</button>
+      <button onclick="openSura('55')" class="button-style">55</button>
+      <button onclick="openSura('70')" class="button-style">70</button>
+      <button onclick="openSura('71')" class="button-style">71</button>
+      <button onclick="openSura('54')" class="button-style">54</button>
+      <button onclick="openSura('53')" class="button-style">53</button>
+      <button onclick="openSura('69')" class="button-style">69</button>
+      <button onclick="openSura('67')" class="button-style">67</button>
+      <button onclick="openSura('56')" class="button-style">56</button>
+      <button onclick="openSura('72')" class="button-style">72</button>
+      <button onclick="openSura('52')" class="button-style">52</button>
+      <button onclick="openSura('51')" class="button-style">51</button>
+      <button onclick="openSura('50')" class="button-style">50</button>
+      <button onclick="openSura('63')" class="button-style">63</button>
+      <button onclick="openSura('66')" class="button-style">66</button>
+      <button onclick="openSura('65')" class="button-style">65</button>
+      <button onclick="openSura('60')" class="button-style">60</button>
+      <button onclick="openSura('49')" class="button-style">49</button>
+      <button onclick="openSura('59')" class="button-style">59</button>
+      <button onclick="openSura('62')" class="button-style">62</button>
+      <button onclick="openSura('58')" class="button-style">58</button>
+      <button onclick="openSura('48')" class="button-style">48</button>
+      <button onclick="openSura('47')" class="button-style">47</button>
+      <button onclick="openSura('61')" class="button-style">61</button>
+      <button onclick="openSura('64')" class="button-style">64</button>
+      <button onclick="openSura('46')" class="button-style">46</button>
+      <button onclick="openSura('44')" class="button-style">44</button>
+      <button onclick="openSura('45')" class="button-style">45</button>
+      <button onclick="openSura('43')" class="button-style">43</button>
+      <button onclick="openSura('42')" class="button-style">42</button>
+      <button onclick="openSura('38')" class="button-style">38</button>
+      <button onclick="openSura('41')" class="button-style">41</button>
+      <button onclick="openSura('36')" class="button-style">36</button>
+      <button onclick="openSura('37')" class="button-style">37</button>
+      <button onclick="openSura('40')" class="button-style">40</button>
+      <button onclick="openSura('34')" class="button-style">34</button>
+      <button onclick="openSura('39')" class="button-style">39</button>
+      <button onclick="openSura('32')" class="button-style">32</button>
+      <button onclick="openSura('35')" class="button-style">35</button>
+      <button onclick="openSura('31')" class="button-style">31</button>
+      <button onclick="openSura('30')" class="button-style">30</button>
+      <button onclick="openSura('28')" class="button-style">28</button>
+      <button onclick="openSura('29')" class="button-style">29</button>
+      <button onclick="openSura('25')" class="button-style">25</button>
+      <button onclick="openSura('26')" class="button-style">26</button>
+      <button onclick="openSura('27')" class="button-style">27</button>
+      <button onclick="openSura('23')" class="button-style">23</button>
+      <button onclick="openSura('24')" class="button-style">24</button>
+      <button onclick="openSura('22')" class="button-style">22</button>
+      <button onclick="openSura('21')" class="button-style">21</button>
+      <button onclick="openSura('20')" class="button-style">20</button>
+      <button onclick="openSura('19')" class="button-style">19</button>
+      <button onclick="openSura('17')" class="button-style">17</button>
+      <button onclick="openSura('15')" class="button-style">15</button>
+      <button onclick="openSura('18')" class="button-style">18</button>
+      <button onclick="openSura('16')" class="button-style">16</button>
+      <button onclick="openSura('14')" class="button-style">14</button>
+      <button onclick="openSura('13')" class="button-style">13</button>
+      <button onclick="openSura('12')" class="button-style">12</button>
+      <button onclick="openSura('11')" class="button-style">11</button>
+      <button onclick="openSura('10')" class="button-style">10</button>
+      <button onclick="openSura('9')" class="button-style">9</button>
+      <button onclick="openSura('8')" class="button-style">8</button>
+      <button onclick="openSura('6')" class="button-style">6</button>
+      <button onclick="openSura('7')" class="button-style">7</button>
+      <button onclick="openSura('5')" class="button-style">5</button>
+      <button onclick="openSura('4')" class="button-style">4</button>
+      <button onclick="openSura('3')" class="button-style">3</button>
+      <button onclick="openSura('2')" class="button-style">2</button>
+    </div>
+</div>
+
+<div id="wordListPage">
+  <button id="homeButton" onclick="goHome()" class="button-style">Home</button>
+  <h2 id="suraHeading"></h2>
+  <div id="wordList"></div>
+  <div id="paginationButtons">
+    <button id="prevButton" onclick="prevPage()" class="button-style">Previous</button>
+    <button id="nextButton" onclick="nextPage()" class="button-style">Next</button>
+  </div>
+</div>
+
+<script>
+// --- GLOBAL VARIABLES ---
+let uploadedText = "";
+let currentSuraWords = [];
+let currentPage = 0;
+const wordsPerPage = 10;
+let currentSuraNum = null;
+const suraProgress = {}; 
+let totalWordsInFile = 0;
+const localStorageKey = 'quranProgress'; // Key to store data in local storage
+
+const suraNames = {
+    '108': 'Al-Kawthar', '110': 'An-Nasr', '103': 'Al-Asr', '106': 'Quraish', '112': 'Al-Ikhlas', '105': 'Al-Fil',
+    '109': 'Al-Kafirun', '97': 'Al-Qadr', '94': 'Al-Inshirah', '111': 'Al-Masad', '113': 'Al-Falaq',
+    '114': 'An-Nas', '99': 'Al-Zalzalah', '100': 'Al-Adiyat', '89': 'Al-Fajr', '101': 'Al-Qariah',
+    '84': 'Al-Inshiqaq', '82': 'Al-Infitar', '104': 'Al-Humazah', '87': 'Al-A’la', '102': 'At-Takathur',
+    '90': 'Al-Balad', '93': 'Ad-Duha', '92': 'Al-Layl', '96': 'Al-Alaq', '80': 'Abasa',
+    '98': 'Al-Bayyinah', '81': 'At-Takwir', '85': 'Al-Buruj', '86': 'At-Tariq', '91': 'Ash-Shams',
+    '83': 'Al-Mutaffifin', '77': 'Al-Mursalat', '79': 'An-Naziat', '75': 'Al-Qiyamah', '88': 'Al-Ghashiyah',
+    '78': 'An-Naba', '76': 'Al-Insan', '74': 'Al-Muddaththir', '68': 'Al-Qalam', '73': 'Al-Muzzammil',
+    '55': 'Ar-Rahman', '70': 'Al-Ma’arij', '71': 'Nuh', '54': 'Al-Qamar', '53': 'An-Najm',
+    '69': 'Al-Haqqah', '67': 'Al-Mulk', '56': 'Al-Waqiah', '72': 'Al-Jinn', '52': 'At-Tur',
+    '51': 'Adh-Dhariyat', '50': 'Qaf', '63': 'Al-Munafiqun', '66': 'At-Tahrim', '65': 'At-Talaq',
+    '60': 'Al-Mumtahanah', '49': 'Al-Hujurat', '59': 'Al-Hashr', '62': 'Al-Jumu’ah', '58': 'Al-Mujadilah',
+    '48': 'Al-Fath', '47': 'Muhammad', '61': 'As-Saff', '64': 'At-Taghabun', '46': 'Al-Ahqaf',
+    '44': 'Ad-Dukhan', '45': 'Al-Jathiyah', '43': 'Az-Zukhruf', '42': 'Ash-Shura', '38': 'Sad',
+    '41': 'Fussilat', '36': 'Ya-Sin', '37': 'As-Saffat', '40': 'Ghafir', '34': 'Saba', '39': 'Az-Zumar',
+    '32': 'As-Sajdah', '35': 'Fatir', '31': 'Luqman', '30': 'Ar-Rum', '28': 'Al-Qasas',
+    '29': 'Al-Ankabut', '25': 'Al-Furqan', '26': 'Ash-Shu’ara', '27': 'An-Naml', '23': 'Al-Mu’minun',
+    '24': 'An-Nur', '22': 'Al-Hajj', '21': 'Al-Anbiya', '20': 'Ta-Ha', '19': 'Maryam', '17': 'Al-Isra',
+    '15': 'Al-Hijr', '18': 'Al-Kahf', '16': 'An-Nahl', '14': 'Ibrahim', '13': 'Ar-Ra’d',
+    '12': 'Yusuf', '11': 'Hud', '10': 'Yunus', '9': 'At-Tawbah', '8': 'Al-Anfal', '6': 'Al-An’am',
+    '7': 'Al-A’raf', '5': 'Al-Ma’idah', '4': 'An-Nisa', '3': 'Ali-Imran', '2': 'Al-Baqarah'
+};
+const suraOrder = Array.from(document.querySelectorAll('#suraGrid button')).map(btn => btn.textContent);
+
+// --- LOCAL STORAGE FUNCTIONS ---
+function saveProgress() {
+    const dataToSave = {};
+    for (const suraNum in suraProgress) {
+        dataToSave[suraNum] = {
+            total: suraProgress[suraNum].total,
+            checked: Array.from(suraProgress[suraNum].checked)
+        };
+    }
+    localStorage.setItem(localStorageKey, JSON.stringify(dataToSave));
+}
+
+function loadProgress() {
+    const savedData = localStorage.getItem(localStorageKey);
+    if (savedData) {
+        const loadedData = JSON.parse(savedData);
+        for (const suraNum in loadedData) {
+            if (suraProgress[suraNum]) {
+                suraProgress[suraNum].total = loadedData[suraNum].total;
+                suraProgress[suraNum].checked = new Set(loadedData[suraNum].checked);
+            }
+        }
+    }
+}
+
+// --- CORE LOGIC ---
+function updateOverallProgress() {
+    let totalCheckedWords = 0;
+    for (const suraNum in suraProgress) {
+        totalCheckedWords += suraProgress[suraNum].checked.size;
+    }
+    
+    const percentage = totalWordsInFile > 0 ? (totalCheckedWords / totalWordsInFile) * 100 : 0;
+    document.getElementById('overallProgressFill').style.width = `${percentage}%`;
+    document.getElementById('overallProgressText').textContent = `${percentage.toFixed(2)}%`;
+}
+
+function updateSuraButtons() {
+    suraOrder.forEach(suraNum => {
+        const suraButton = document.querySelector(`#suraGrid button[onclick="openSura('${suraNum}')"]`);
+        if (!suraButton) return;
+
+        const suraInfo = suraProgress[suraNum];
+        if (suraInfo && suraInfo.total > 0 && suraInfo.checked.size === suraInfo.total) {
+            suraButton.classList.add('sura-complete');
+        } else {
+            suraButton.classList.remove('sura-complete');
+        }
+    });
+}
+
+// Automatically load the file on page load
+window.onload = function() {
+  fetch('quran.txt')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(text => {
+      uploadedText = text;
+      
+      // Initialize sura progress and total word count
+      totalWordsInFile = 0;
+      suraOrder.forEach(suraNum => {
+          suraProgress[suraNum] = { total: 0, checked: new Set() };
+      });
+      
+      const lines = uploadedText.split(/\r?\n/);
+      lines.forEach(line => {
+          const parts = line.split('|');
+          if (parts.length > 2) {
+              const suraNum = parts[0];
+              const arabicText = parts[2];
+              const words = arabicText.split(/\s+/).filter(word => word.length > 0);
+              if (suraProgress[suraNum]) {
+                  suraProgress[suraNum].total += words.length;
+                  totalWordsInFile += words.length;
+              }
+          }
+      });
+      
+      // Load saved progress from local storage
+      loadProgress();
+      
+      // Update the UI
+      updateOverallProgress();
+      updateSuraButtons();
+    })
+    .catch(error => {
+      console.error('Could not load the file:', error);
+      document.getElementById('overallProgressText').textContent = 'Error loading file.';
+    });
+};
+
+function openAIQuery(element, word) {
+    if (!element.classList.contains('checked')) {
+        element.classList.add('checked');
+        suraProgress[currentSuraNum].checked.add(word);
+        updateOverallProgress();
+        saveProgress(); // Save progress to local storage
+    }
+    
+    const googleQuery = `${word} meaning in English`;
+    const url = `https://www.google.com/search?q=${encodeURIComponent(googleQuery)}`;
+    window.open(url, '_blank');
+}
+
+function openSura(suraNum) {
+  if (!uploadedText) {
+    alert("File is still loading or an error occurred.");
+    return;
+  }
+
+  currentSuraNum = suraNum;
+
+  document.getElementById('wordListPage').style.display = 'block';
+  document.querySelector('.main-content-wrapper').style.display = 'none';
+
+  const suraName = suraNames[suraNum] || `Unknown Surah ${suraNum}`;
+  document.getElementById('suraHeading').textContent = `${suraNum} - Surah ${suraName}`;
+  
+  const suraWords = [];
+  const lines = uploadedText.split(/\r?\n/);
+  
+  lines.forEach(line => {
+      const parts = line.split('|');
+      if (parts.length > 2 && parts[0] === suraNum) {
+        const arabicText = parts[2];
+        const words = arabicText.split(/\s+/).filter(word => word.length > 0);
+        suraWords.push(...words);
+      }
+  });
+  
+  currentSuraWords = suraWords;
+
+  currentPage = 0;
+  updateWordPage();
+}
+
+function updateWordPage() {
+  const wordList = document.getElementById('wordList');
+  wordList.innerHTML = '';
+  
+  const start = currentPage * wordsPerPage;
+  const end = start + wordsPerPage;
+  const wordsToDisplay = currentSuraWords.slice(start, end);
+
+  wordsToDisplay.forEach(word => {
+    const div = document.createElement('div');
+    div.textContent = word;
+    div.classList.add('word');
+    if (suraProgress[currentSuraNum] && suraProgress[currentSuraNum].checked.has(word)) {
+        div.classList.add('checked');
+    }
+    div.onclick = () => openAIQuery(div, word);
+    wordList.appendChild(div);
+  });
+  
+  while (wordList.children.length < wordsPerPage) {
+      const div = document.createElement('div');
+      div.classList.add('word');
+      div.style.visibility = 'hidden'; 
+      wordList.appendChild(div);
+  }
+  
+  document.getElementById('prevButton').style.display = (currentPage > 0) ? 'block' : 'none';
+  document.getElementById('nextButton').style.display = (end < currentSuraWords.length) ? 'block' : 'none';
+}
+
+function nextPage() {
+  if ((currentPage + 1) * wordsPerPage < currentSuraWords.length) {
+    currentPage++;
+    updateWordPage();
+  }
+}
+
+function prevPage() {
+  if (currentPage > 0) {
+    currentPage--;
+    updateWordPage();
+  }
+}
+
+function goHome() {
+  document.getElementById('wordListPage').style.display = 'none';
+  document.querySelector('.main-content-wrapper').style.display = 'block';
+  updateSuraButtons();
+}
+</script>
+</body>
+</html>
