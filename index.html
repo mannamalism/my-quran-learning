@@ -3,152 +3,169 @@
 <head>
 <meta charset="UTF-8">
 <title>My Quran Learning</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
   /* Import Poppins for English text and Scheherazade New for Arabic */
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Scheherazade+New:wght@400;700&display=swap');
 
+  /* New, improved color palette */
+  :root {
+      --primary-color: #4a90e2; /* A calming blue */
+      --secondary-color: #f0f4f8; /* A light, soft background */
+      --text-color: #333;
+      --light-gray: #e8e8e8;
+      --dark-gray: #b0b0b0;
+      --white: #ffffff;
+      --shadow-light: rgba(0, 0, 0, 0.05);
+      --shadow-medium: rgba(0, 0, 0, 0.1);
+  }
+
   body { 
-    font-family: Arial, sans-serif; /* Keep a generic sans-serif for the body to avoid changing button fonts */
-    margin: 20px; 
-    background-color: #f7f7f7;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    justify-content: center;
+    align-items: flex-start;
     min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
   }
   
-  /* Apply Poppins font to the main English headings */
+  .container {
+    width: 100%;
+    max-width: 800px;
+  }
+
   h1, h2 { 
     font-family: 'Poppins', sans-serif;
     text-align: center; 
-    color: #4a4a4a;
+    color: var(--text-color);
+    font-weight: 600;
+  }
+  h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0;
   }
 
   /* Overall Progress Bar Styling */
   #overallProgressBar {
       width: 100%;
-      height: 30px;
-      background-color: #e0e0e0;
+      height: 25px;
+      background-color: var(--light-gray);
       border-radius: 15px;
-      margin-top: 10px;
-      margin-bottom: 20px;
+      margin: 20px 0;
       overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: #333;
-      border: 1px solid #ccc;
       position: relative; 
+      box-shadow: 0 2px 4px var(--shadow-light) inset;
   }
   #overallProgressFill {
       height: 100%;
-      background-color: #3498db;
-      transition: width 0.3s ease-in-out;
+      background-color: var(--primary-color);
+      transition: width 0.4s ease-in-out;
+      border-radius: 15px;
   }
   #overallProgressText {
       position: absolute;
-      color: #333;
+      width: 100%;
+      text-align: center;
+      line-height: 25px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: var(--text-color);
       z-index: 1;
   }
 
-  /* Common button style for all buttons - font remains default sans-serif */
+  /* Common button style for all buttons */
   .button-style {
       padding: 10px 15px;
-      font-size: 16px;
+      font-size: 1rem;
       cursor: pointer;
-      border: 1px solid #ccc;
-      background-color: #e0e0e0;
-      border-radius: 5px;
-      text-align: center;
+      border: none;
+      background-color: var(--white);
+      color: var(--text-color);
+      border-radius: 8px;
+      box-shadow: 0 4px 8px var(--shadow-medium);
+      transition: all 0.2s ease-in-out;
+      font-family: 'Poppins', sans-serif;
       text-decoration: none;
-      color: #333;
-      display: inline-block;
-      margin: 5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      transition: background-color 0.2s;
   }
   .button-style:hover {
-      background-color: #d0d0d0;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px var(--shadow-medium);
+  }
+  .button-style:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px var(--shadow-medium);
   }
 
   /* Style for completed surah buttons */
   .sura-complete {
-      background-color: #3498db;
-      color: #ffffff;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      background-color: var(--primary-color);
+      color: var(--white);
+      box-shadow: 0 4px 8px var(--shadow-medium);
   }
 
-  .main-content-wrapper {
-      width: fit-content;
-      max-width: 800px;
-      margin: 0 auto;
-  }
-
+  /* Main grid for surah buttons */
   #suraGrid {
       display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 5px;
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      gap: 12px;
       margin-top: 20px;
       width: 100%;
   }
   #suraGrid .button-style {
-      width: 100%;
       padding: 15px 10px;
-      font-size: 18px;
-      height: 45px;
+      font-size: 1.1rem;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
-  }
-
-  @media (max-width: 500px) {
-    #suraGrid {
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px;
-    }
-    #suraGrid .button-style {
-      font-size: 16px;
-      height: 40px;
-    }
+      font-weight: 600;
   }
 
   #wordListPage {
       display: none;
       position: relative; 
-      width: fit-content;
+      width: 100%;
       max-width: 600px;
-      margin: 0 auto;
       padding: 20px;
       box-sizing: border-box;
       min-height: 85vh;
   }
 
+  /* New container for the heading and home button to fix the overlap */
+  .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      width: 100%;
+      position: relative; /* Make it a positioning context */
+  }
+
   #homeButton {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 0;
+      right: 0;
+      font-size: 0.9rem;
   }
   
   #suraHeading {
-      /* This heading will automatically get the Poppins font from the h2 selector */
+      flex-grow: 1;
       text-align: center;
       margin-top: 0;
       margin-bottom: 20px;
       font-size: 2.5rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      padding-right: 80px; /* Make space for the home button */
+      box-sizing: border-box;
   }
 
   #wordList {
       height: calc(100% - 150px);
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: repeat(5, 1fr);
-      gap: 10px;
-      align-items: center;
-      justify-content: center;
+      grid-template-columns: 1fr; /* Single column layout for better mobile readability */
+      gap: 12px;
   }
 
   /* Arabic words keep their specific Scheherazade font */
@@ -156,43 +173,58 @@
       font-family: 'Scheherazade New', serif;
       text-align: center;
       width: 100%;
-      height: 100%;
+      padding: 20px;
+      box-sizing: border-box;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.5rem;
-      background-color: #e9e9e9;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      font-size: 2.2rem;
+      background-color: var(--white);
+      border: 1px solid var(--light-gray);
+      border-radius: 12px;
       cursor: pointer;
       transition: all 0.2s ease-in-out;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px var(--shadow-light);
   }
-
   .word:hover {
-      background-color: #d0d0d0;
-      box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px var(--shadow-medium);
   }
 
   .word.checked {
-      background-color: #3498db; 
-      color: #ffffff; 
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      background-color: var(--primary-color); 
+      color: var(--white); 
+      box-shadow: 0 4px 8px var(--shadow-medium);
   }
 
   #paginationButtons {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
       display: flex;
-      gap: 10px;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 500px) {
+    h1 {
+      font-size: 2rem;
+    }
+    #suraHeading {
+        font-size: 1.8rem;
+    }
+    .word {
+        font-size: 2rem;
+    }
+    #suraGrid {
+      grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+      gap: 8px;
+    }
   }
 </style>
 </head>
 <body>
-<h1>My Quran Learning</h1>
-
-<div class="main-content-wrapper">
+<div class="container" id="suraGridPage">
+    <h1>My Quran Learning</h1>
     <div id="overallProgressBar">
         <div id="overallProgressFill"></div>
         <span id="overallProgressText">Loading...</span>
@@ -311,9 +343,11 @@
     </div>
 </div>
 
-<div id="wordListPage">
-  <button id="homeButton" onclick="goHome()" class="button-style">Home</button>
-  <h2 id="suraHeading"></h2>
+<div id="wordListPage" class="container">
+  <div class="header-container">
+      <button id="homeButton" onclick="goHome()" class="button-style">Home</button>
+      <h2 id="suraHeading"></h2>
+  </div>
   <div id="wordList"></div>
   <div id="paginationButtons">
     <button id="prevButton" onclick="prevPage()" class="button-style">Previous</button>
@@ -474,8 +508,8 @@ function openSura(suraNum) {
 
   currentSuraNum = suraNum;
 
+  document.getElementById('suraGridPage').style.display = 'none';
   document.getElementById('wordListPage').style.display = 'block';
-  document.querySelector('.main-content-wrapper').style.display = 'none';
 
   const suraName = suraNames[suraNum] || `Unknown Surah ${suraNum}`;
   document.getElementById('suraHeading').textContent = `${suraNum} - Surah ${suraName}`;
@@ -524,8 +558,8 @@ function updateWordPage() {
       wordList.appendChild(div);
   }
   
-  document.getElementById('prevButton').style.display = (currentPage > 0) ? 'block' : 'none';
-  document.getElementById('nextButton').style.display = (end < currentSuraWords.length) ? 'block' : 'none';
+  document.getElementById('prevButton').style.display = (currentPage > 0) ? 'inline-block' : 'none';
+  document.getElementById('nextButton').style.display = (end < currentSuraWords.length) ? 'inline-block' : 'none';
 }
 
 function nextPage() {
@@ -544,7 +578,7 @@ function prevPage() {
 
 function goHome() {
   document.getElementById('wordListPage').style.display = 'none';
-  document.querySelector('.main-content-wrapper').style.display = 'block';
+  document.getElementById('suraGridPage').style.display = 'block';
   updateSuraButtons();
 }
 </script>
